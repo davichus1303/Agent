@@ -1,0 +1,42 @@
+version: "3.8"
+
+services:
+  app:
+    build: .
+    container_name: agnostic-agent-app
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - RULES_FILE=/app/agent_rules.json
+      - MSSQL_HOST=mssql
+      - MSSQL_PORT=1433
+      - MSSQL_DATABASE=master
+      - MSSQL_USER=sa
+      - MSSQL_PASSWORD=paswordOfSQLsa
+    volumes:
+      - ./:/app:rw
+      - ./agent_rules.json:/app/agent_rules.json:ro
+
+    depends_on:
+      - mssql
+
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    container_name: agnostic-agent-mssql
+    environment:
+      SA_PASSWORD: "paswordOfSQLsa"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+    volumes:
+      - mssql-data:/var/opt/mssql
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P $${SA_PASSWORD} -Q 'SELECT 1' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+volumes:
+  mssql-data:

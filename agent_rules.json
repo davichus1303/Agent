@@ -1,0 +1,30 @@
+[
+  {
+    "domain_id": "FINANCE_PARTNER_X",
+    "match_criteria": {
+      "source_system": "SAP_CLOUD"
+    },
+    "target_action": {
+      "type": "stored_procedure",
+      "name": "sp_insert_transaction",
+      "mapping_strategy": "explicit",
+      "params_map": {
+        "@ref_external": "transaction_id",
+        "@amount": "total_amount",
+        "@currency": "currency_code"
+      }
+    }
+  },
+  {
+    "domain_id": "LOGISTICS_V2",
+    "match_criteria": {
+      "source_system": "WMS_BOT"
+    },
+    "target_action": {
+      "type": "stored_procedure",
+      "name": "sp_update_inventory",
+      "mapping_strategy": "pass_through",
+      "description": "Injects the whole JSON payload as a string"
+    }
+  }
+]
